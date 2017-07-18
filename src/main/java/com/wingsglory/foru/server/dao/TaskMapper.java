@@ -4,7 +4,9 @@ import com.wingsglory.foru.server.model.Task;
 import com.wingsglory.foru.server.model.TaskExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.mybatis.spring.annotation.MapperScan;
 
+@MapperScan
 public interface TaskMapper {
     int countByExample(TaskExample example);
 

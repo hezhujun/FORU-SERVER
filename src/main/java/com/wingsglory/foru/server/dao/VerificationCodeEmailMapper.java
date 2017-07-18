@@ -4,7 +4,9 @@ import com.wingsglory.foru.server.model.VerificationCodeEmail;
 import com.wingsglory.foru.server.model.VerificationCodeEmailExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.mybatis.spring.annotation.MapperScan;
 
+@MapperScan
 public interface VerificationCodeEmailMapper {
     int countByExample(VerificationCodeEmailExample example);
 
