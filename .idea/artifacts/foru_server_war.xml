@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="foru-server:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="foru-server.war">
+      <element id="artifact" artifact-name="foru-server:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wingsglory.foru.server.dao.TaskMapper">
+  <resultMap id="BaseResultMap" type="com.wingsglory.foru.server.model.Task">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="publisher_id" jdbcType="INTEGER" property="publisherId" />
+    <result column="recipient_id" jdbcType="INTEGER" property="recipientId" />
+    <result column="state" jdbcType="VARCHAR" property="state" />
+    <result column="content_id" jdbcType="INTEGER" property="contentId" />
+    <result column="evaluation_to_publisher" jdbcType="INTEGER" property="evaluationToPublisher" />
+    <result column="evaluation_to_recipient" jdbcType="INTEGER" property="evaluationToRecipient" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, publisher_id, recipient_id, state, content_id, evaluation_to_publisher, evaluation_to_recipient, 
+    gmt_create
+  </sql>
+  <select id="selectByExample" parameterType="com.wingsglory.foru.server.model.TaskExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from task
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from task
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.wingsglory.foru.server.model.TaskExample">
+    delete from task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.wingsglory.foru.server.model.Task" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+    insert into task (publisher_id, recipient_id,
+      state, content_id, evaluation_to_publisher, 
+      evaluation_to_recipient, gmt_create)
+    values (#{publisherId,jdbcType=INTEGER}, #{recipientId,jdbcType=INTEGER},
+      #{state,jdbcType=VARCHAR}, #{contentId,jdbcType=INTEGER}, #{evaluationToPublisher,jdbcType=INTEGER}, 
+      #{evaluationToRecipient,jdbcType=INTEGER}, #{gmtCreate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.Task" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+    insert into task
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="publisherId != null">
+        publisher_id,
+      </if>
+      <if test="recipientId != null">
+        recipient_id,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="contentId != null">
+        content_id,
+      </if>
+      <if test="evaluationToPublisher != null">
+        evaluation_to_publisher,
+      </if>
+      <if test="evaluationToRecipient != null">
+        evaluation_to_recipient,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="publisherId != null">
+        #{publisherId,jdbcType=INTEGER},
+      </if>
+      <if test="recipientId != null">
+        #{recipientId,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="contentId != null">
+        #{contentId,jdbcType=INTEGER},
+      </if>
+      <if test="evaluationToPublisher != null">
+        #{evaluationToPublisher,jdbcType=INTEGER},
+      </if>
+      <if test="evaluationToRecipient != null">
+        #{evaluationToRecipient,jdbcType=INTEGER},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.wingsglory.foru.server.model.TaskExample" resultType="java.lang.Integer">
+    select count(*) from task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update task
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.publisherId != null">
+        publisher_id = #{record.publisherId,jdbcType=INTEGER},
+      </if>
+      <if test="record.recipientId != null">
+        recipient_id = #{record.recipientId,jdbcType=INTEGER},
+      </if>
+      <if test="record.state != null">
+        state = #{record.state,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contentId != null">
+        content_id = #{record.contentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.evaluationToPublisher != null">
+        evaluation_to_publisher = #{record.evaluationToPublisher,jdbcType=INTEGER},
+      </if>
+      <if test="record.evaluationToRecipient != null">
+        evaluation_to_recipient = #{record.evaluationToRecipient,jdbcType=INTEGER},
+      </if>
+      <if test="record.gmtCreate != null">
+        gmt_create = #{record.gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update task
+    set id = #{record.id,jdbcType=INTEGER},
+      publisher_id = #{record.publisherId,jdbcType=INTEGER},
+      recipient_id = #{record.recipientId,jdbcType=INTEGER},
+      state = #{record.state,jdbcType=VARCHAR},
+      content_id = #{record.contentId,jdbcType=INTEGER},
+      evaluation_to_publisher = #{record.evaluationToPublisher,jdbcType=INTEGER},
+      evaluation_to_recipient = #{record.evaluationToRecipient,jdbcType=INTEGER},
+      gmt_create = #{record.gmtCreate,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wingsglory.foru.server.model.Task">
+    update task
+    <set>
+      <if test="publisherId != null">
+        publisher_id = #{publisherId,jdbcType=INTEGER},
+      </if>
+      <if test="recipientId != null">
+        recipient_id = #{recipientId,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="contentId != null">
+        content_id = #{contentId,jdbcType=INTEGER},
+      </if>
+      <if test="evaluationToPublisher != null">
+        evaluation_to_publisher = #{evaluationToPublisher,jdbcType=INTEGER},
+      </if>
+      <if test="evaluationToRecipient != null">
+        evaluation_to_recipient = #{evaluationToRecipient,jdbcType=INTEGER},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wingsglory.foru.server.model.Task">
+    update task
+    set publisher_id = #{publisherId,jdbcType=INTEGER},
+      recipient_id = #{recipientId,jdbcType=INTEGER},
+      state = #{state,jdbcType=VARCHAR},
+      content_id = #{contentId,jdbcType=INTEGER},
+      evaluation_to_publisher = #{evaluationToPublisher,jdbcType=INTEGER},
+      evaluation_to_recipient = #{evaluationToRecipient,jdbcType=INTEGER},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <resultMap id="BaseResultMap" type="com.wingsglory.foru.server.model.Task">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="publisher_id" jdbcType="INTEGER" property="publisherId" />
+    <result column="recipient_id" jdbcType="INTEGER" property="recipientId" />
+    <result column="state" jdbcType="VARCHAR" property="state" />
+    <result column="content_id" jdbcType="INTEGER" property="contentId" />
+    <result column="evaluation_to_publisher" jdbcType="INTEGER" property="evaluationToPublisher" />
+    <result column="evaluation_to_recipient" jdbcType="INTEGER" property="evaluationToRecipient" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, publisher_id, recipient_id, state, content_id, evaluation_to_publisher, evaluation_to_recipient, 
+    gmt_create
+  </sql>
+  <select id="selectByExample" parameterType="com.wingsglory.foru.server.model.TaskExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from task
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from task
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.wingsglory.foru.server.model.TaskExample">
+    delete from task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.wingsglory.foru.server.model.Task">
+    insert into task (id, publisher_id, recipient_id, 
+      state, content_id, evaluation_to_publisher, 
+      evaluation_to_recipient, gmt_create)
+    values (#{id,jdbcType=INTEGER}, #{publisherId,jdbcType=INTEGER}, #{recipientId,jdbcType=INTEGER}, 
+      #{state,jdbcType=VARCHAR}, #{contentId,jdbcType=INTEGER}, #{evaluationToPublisher,jdbcType=INTEGER}, 
+      #{evaluationToRecipient,jdbcType=INTEGER}, #{gmtCreate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.Task">
+    insert into task
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="publisherId != null">
+        publisher_id,
+      </if>
+      <if test="recipientId != null">
+        recipient_id,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="contentId != null">
+        content_id,
+      </if>
+      <if test="evaluationToPublisher != null">
+        evaluation_to_publisher,
+      </if>
+      <if test="evaluationToRecipient != null">
+        evaluation_to_recipient,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="publisherId != null">
+        #{publisherId,jdbcType=INTEGER},
+      </if>
+      <if test="recipientId != null">
+        #{recipientId,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="contentId != null">
+        #{contentId,jdbcType=INTEGER},
+      </if>
+      <if test="evaluationToPublisher != null">
+        #{evaluationToPublisher,jdbcType=INTEGER},
+      </if>
+      <if test="evaluationToRecipient != null">
+        #{evaluationToRecipient,jdbcType=INTEGER},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.wingsglory.foru.server.model.TaskExample" resultType="java.lang.Integer">
+    select count(*) from task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update task
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.publisherId != null">
+        publisher_id = #{record.publisherId,jdbcType=INTEGER},
+      </if>
+      <if test="record.recipientId != null">
+        recipient_id = #{record.recipientId,jdbcType=INTEGER},
+      </if>
+      <if test="record.state != null">
+        state = #{record.state,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contentId != null">
+        content_id = #{record.contentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.evaluationToPublisher != null">
+        evaluation_to_publisher = #{record.evaluationToPublisher,jdbcType=INTEGER},
+      </if>
+      <if test="record.evaluationToRecipient != null">
+        evaluation_to_recipient = #{record.evaluationToRecipient,jdbcType=INTEGER},
+      </if>
+      <if test="record.gmtCreate != null">
+        gmt_create = #{record.gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update task
+    set id = #{record.id,jdbcType=INTEGER},
+      publisher_id = #{record.publisherId,jdbcType=INTEGER},
+      recipient_id = #{record.recipientId,jdbcType=INTEGER},
+      state = #{record.state,jdbcType=VARCHAR},
+      content_id = #{record.contentId,jdbcType=INTEGER},
+      evaluation_to_publisher = #{record.evaluationToPublisher,jdbcType=INTEGER},
+      evaluation_to_recipient = #{record.evaluationToRecipient,jdbcType=INTEGER},
+      gmt_create = #{record.gmtCreate,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wingsglory.foru.server.model.Task">
+    update task
+    <set>
+      <if test="publisherId != null">
+        publisher_id = #{publisherId,jdbcType=INTEGER},
+      </if>
+      <if test="recipientId != null">
+        recipient_id = #{recipientId,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="contentId != null">
+        content_id = #{contentId,jdbcType=INTEGER},
+      </if>
+      <if test="evaluationToPublisher != null">
+        evaluation_to_publisher = #{evaluationToPublisher,jdbcType=INTEGER},
+      </if>
+      <if test="evaluationToRecipient != null">
+        evaluation_to_recipient = #{evaluationToRecipient,jdbcType=INTEGER},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wingsglory.foru.server.model.Task">
+    update task
+    set publisher_id = #{publisherId,jdbcType=INTEGER},
+      recipient_id = #{recipientId,jdbcType=INTEGER},
+      state = #{state,jdbcType=VARCHAR},
+      content_id = #{contentId,jdbcType=INTEGER},
+      evaluation_to_publisher = #{evaluationToPublisher,jdbcType=INTEGER},
+      evaluation_to_recipient = #{evaluationToRecipient,jdbcType=INTEGER},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
