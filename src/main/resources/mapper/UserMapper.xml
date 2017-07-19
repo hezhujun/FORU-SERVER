@@ -96,6 +96,13 @@
     <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
+    <if test="rows != null">
+      limit
+      <if test="offset != null">
+        #{offset, jdbcType=INTEGER},
+      </if>
+      #{rows, jdbcType=INTEGER}
+    </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 

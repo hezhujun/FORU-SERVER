@@ -8,6 +8,26 @@ public class RelationExample {
 
     protected boolean distinct;
 
+    protected Integer offset;
+
+    protected Integer rows;
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getRows() {
+        return rows;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
+
     protected List<Criteria> oredCriteria;
 
     public RelationExample() {

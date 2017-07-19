@@ -35,7 +35,7 @@
           p:mapperLocations="classpath:mapper/*.xml"
     />
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
-          p:basePackage="com.hezhujun.shopping.dao"
+          p:basePackage="com.wingsglory.foru.server.dao"
     />
     <!-- 声明事务 -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
