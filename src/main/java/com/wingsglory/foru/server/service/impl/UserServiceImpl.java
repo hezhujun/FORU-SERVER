@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
                 if (user.getId() == null) {
                     throw new Exception("注册失败");
                 }
-                User u =  userMapper.selectByPrimaryKey(user.getId());
+                User u = userMapper.selectByPrimaryKey(user.getId());
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("注册成功返回" + u.toString()));
                 }
@@ -231,11 +231,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageBean<Addressee> listAddressee(Integer userId, int page, int rows) {
+        PageBean<Addressee> addresseePageBean = null;
         AddresseeExample example = new AddresseeExample();
         AddresseeExample.Criteria criteria = example.createCriteria();
         criteria.andUserIdEqualTo(userId);
         int totalRows = addresseeMapper.countByExample(example);
-        example.setOrderByClause("id");
-        return null;
+        if (totalRows == 0) {
+            // 没有记录，直接返回
+            addresseePageBean = new PageBean<Addressee>(totalRows, rows, 0, null);
+        } else {
+            example.setOrderByClause("id");
+            example.setOffset((page - 1) * rows);
+            example.setRows(rows);
+            List<Addressee> addresseeList = addresseeMapper.selectByExample(example);
+            addresseePageBean = new PageBean<>(totalRows, rows, page, addresseeList);
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("返回收货信息列表" + addresseePageBean);
+        }
+        return addresseePageBean;
     }
 }
