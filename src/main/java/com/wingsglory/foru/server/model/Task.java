@@ -111,4 +111,20 @@ public class Task {
     public void setRecipient(User recipient) {
         this.recipient = recipient;
     }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", publisherId=" + publisherId +
+                ", publisher=" + publisher +
+                ", recipientId=" + recipientId +
+                ", recipient=" + recipient +
+                ", state='" + state + '\'' +
+                ", contentId=" + contentId +
+                ", evaluationToPublisher=" + evaluationToPublisher +
+                ", evaluationToRecipient=" + evaluationToRecipient +
+                ", gmtCreate=" + gmtCreate +
+                '}';
+    }
 }

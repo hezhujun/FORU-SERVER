@@ -45,4 +45,14 @@ public class Relation extends RelationKey {
     public void setRelation(String relation) {
         this.relation = relation == null ? null : relation.trim();
     }
+
+    @Override
+    public String toString() {
+        return "Relation{" +
+                "user1=" + user1 +
+                ", user2=" + user2 +
+                ", interactionCount=" + interactionCount +
+                ", relation='" + relation + '\'' +
+                '}';
+    }
 }

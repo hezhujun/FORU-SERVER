@@ -82,4 +82,18 @@ public class Addressee {
     public void setUserId(Integer userId) {
         this.userId = userId;
     }
+
+    @Override
+    public String toString() {
+        return "Addressee{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", addressDetail='" + addressDetail + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", userId=" + userId +
+                '}';
+    }
 }

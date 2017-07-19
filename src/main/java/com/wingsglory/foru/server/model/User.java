@@ -172,4 +172,27 @@ public class User {
     public void setDeposit(BigDecimal deposit) {
         this.deposit = deposit;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", phone='" + phone + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", protraitUrl='" + protraitUrl + '\'' +
+                ", rongToken='" + rongToken + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", creditValue=" + creditValue +
+                ", publishCount=" + publishCount +
+                ", doneCount=" + doneCount +
+                ", failCount=" + failCount +
+                ", realName='" + realName + '\'' +
+                ", idCardNo='" + idCardNo + '\'' +
+                ", deposit=" + deposit +
+                '}';
+    }
 }

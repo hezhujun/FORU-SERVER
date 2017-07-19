@@ -32,4 +32,13 @@ public class VerificationCodePhone {
     public void setGmtModified(Date gmtModified) {
         this.gmtModified = gmtModified;
     }
+
+    @Override
+    public String toString() {
+        return "VerificationCodePhone{" +
+                "phone='" + phone + '\'' +
+                ", code='" + code + '\'' +
+                ", gmtModified=" + gmtModified +
+                '}';
+    }
 }

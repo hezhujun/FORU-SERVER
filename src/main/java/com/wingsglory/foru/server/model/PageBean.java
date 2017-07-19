@@ -1,5 +1,7 @@
 package com.wingsglory.foru.server.model;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -79,5 +81,22 @@ public class PageBean<T> {
         } else {
             return beans.size();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "PageBean{" +
+                "totalRows=" + totalRows +
+                ", rows=" + rows +
+                ", page=" + page +
+                ", beans=" + showList(beans) +
+                '}';
+    }
+
+    private String showList(List list) {
+        if (list == null) {
+            return "[]";
+        }
+        return Arrays.toString(list.toArray());
     }
 }

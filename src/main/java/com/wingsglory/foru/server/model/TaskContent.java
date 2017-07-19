@@ -103,4 +103,20 @@ public class TaskContent {
     public void setAddressee(Addressee addressee) {
         this.addressee = addressee;
     }
+
+    @Override
+    public String toString() {
+        return "TaskContent{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", targetPosition='" + targetPosition + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", addresseeId=" + addresseeId +
+                ", addressee=" + addressee +
+                ", timeout=" + timeout +
+                ", reward=" + reward +
+                '}';
+    }
 }

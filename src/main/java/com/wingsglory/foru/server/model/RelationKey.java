@@ -20,4 +20,12 @@ public class RelationKey {
     public void setUser2Id(Integer user2Id) {
         this.user2Id = user2Id;
     }
+
+    @Override
+    public String toString() {
+        return "RelationKey{" +
+                "user1Id=" + user1Id +
+                ", user2Id=" + user2Id +
+                '}';
+    }
 }
