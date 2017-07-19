@@ -8,19 +8,19 @@ import com.wingsglory.foru.server.model.User;
  * Created by hezhujun on 2017/7/18.
  */
 public interface UserService {
-    User login(String username, String passwrod);
+    User login(String username, String passwrod) throws Exception;
 
-    User register(User user);
+    User register(User user, String verificationCode) throws Exception;
 
-    String verificationCodeToPhone(String phone);
+    String verificationCodeToPhone(String phone) throws Exception;
 
-    String verificationCodeToEmail(String email);
+    String verificationCodeToEmail(String email) throws Exception;
 
-    User updateUser(User user);
+    User updateUser(User user) throws Exception;
 
-    Addressee saveAddressee(Addressee addressee);
+    Addressee saveAddressee(Addressee addressee) throws Exception;
 
-    Addressee updateAddressee(Addressee addressee);
+    Addressee updateAddressee(Addressee addressee) throws Exception;
 
     boolean removeAddressee(Integer addresseeId);
 
