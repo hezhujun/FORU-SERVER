@@ -63,6 +63,25 @@ public class RelationServiceImpl implements RelationService {
     }
 
     @Override
+    public void setNormal(Integer user1Id, Integer user2Id) throws Exception {
+        RelationKey key = new Relation();
+        key.setUser1Id(user1Id);
+        key.setUser2Id(user2Id);
+        Relation relation = relationMapper.selectByPrimaryKey(key);
+        if (relation == null) {
+            relation = new Relation();
+            relation.setUser1Id(user1Id);
+            relation.setUser2Id(user2Id);
+            relation.setRelation(Relation.RELATION_NORMAL);
+        } else {
+            relation.setRelation(Relation.RELATION_NORMAL);
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug(user1Id + "不再关注或拉黑" + user2Id);
+        }
+    }
+
+    @Override
     public PageBean<Relation> listFriend(Integer userId, int page, int rows) throws Exception {
         PageBean<Relation> relationPageBean = null;
         RelationExample example = new RelationExample();

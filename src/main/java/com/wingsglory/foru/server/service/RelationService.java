@@ -12,6 +12,8 @@ public interface RelationService {
 
     void addBlack(Integer user1Id, Integer user2Id) throws Exception;
 
+    void setNormal(Integer user1Id, Integer user2Id) throws Exception;
+
     PageBean<Relation> listFriend(Integer userId, int page, int rows) throws Exception;
 
     PageBean<Relation> listBack(Integer userId, int page, int rows) throws Exception;
