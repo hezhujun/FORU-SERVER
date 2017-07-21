@@ -22,7 +22,7 @@ public interface UserService {
 
     Addressee updateAddressee(Addressee addressee) throws Exception;
 
-    boolean removeAddressee(Integer addresseeId);
+    boolean removeAddressee(Addressee addressee) throws Exception;
 
-    PageBean<Addressee> listAddressee(Integer userId, int page, int rows);
+    PageBean<Addressee> listAddressee(Integer userId, int page, int rows) throws Exception;
 }

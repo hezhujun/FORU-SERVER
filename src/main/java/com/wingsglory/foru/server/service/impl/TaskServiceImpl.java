@@ -324,7 +324,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude, int page, int rows) {
+    public PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude, int page, int rows)
+            throws Exception {
         PageBean<Task> taskPageBean = null;
         TaskExample example = new TaskExample();
         TaskExample.Criteria criteria = example.createCriteria();
@@ -354,7 +355,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public PageBean<Task> listPublishTask(Integer userId, int page, int rows) {
+    public PageBean<Task> listPublishTask(Integer userId, int page, int rows) throws Exception {
         PageBean<Task> taskPageBean = null;
         TaskExample example = new TaskExample();
         TaskExample.Criteria criteria = example.createCriteria();
@@ -388,7 +389,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public PageBean<Task> listAcceptTask(Integer userId, int page, int rows) {
+    public PageBean<Task> listAcceptTask(Integer userId, int page, int rows) throws Exception {
         PageBean<Task> taskPageBean = null;
         TaskExample example = new TaskExample();
         TaskExample.Criteria criteria = example.createCriteria();

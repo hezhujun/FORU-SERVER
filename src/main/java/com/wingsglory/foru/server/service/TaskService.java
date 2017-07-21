@@ -23,9 +23,9 @@ public interface TaskService {
 
     void delete(Task task) throws Exception;
 
-    PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude, int page, int rows);
+    PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude, int page, int rows) throws Exception;
 
-    PageBean<Task> listPublishTask(Integer userId, int page, int rows);
+    PageBean<Task> listPublishTask(Integer userId, int page, int rows) throws Exception;
 
-    PageBean<Task> listAcceptTask(Integer userId, int page, int rows);
+    PageBean<Task> listAcceptTask(Integer userId, int page, int rows) throws Exception;
 }

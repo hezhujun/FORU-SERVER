@@ -217,6 +217,10 @@ public class UserServiceImpl implements UserService {
         if (addressee.getId() == null) {
             throw new Exception("收货信息id不能为空");
         }
+        Addressee theAddressee = addresseeMapper.selectByPrimaryKey(addressee.getId());
+        if (!theAddressee.getUserId().equals(addressee.getUserId())) {
+            throw new Exception("不能修改其他用户的数据");
+        }
         addresseeMapper.updateByPrimaryKeySelective(addressee);
         Addressee a = addresseeMapper.selectByPrimaryKey(addressee.getId());
         if (logger.isDebugEnabled()) {
@@ -226,17 +230,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean removeAddressee(Integer addresseeId) {
-        int i = addresseeMapper.deleteByPrimaryKey(addresseeId);
+    public boolean removeAddressee(Addressee addressee) throws Exception {
+        if (addressee.getId() == null) {
+            throw new Exception("收货信息id不能为空");
+        }
+        if (addressee.getUserId() == null) {
+            throw new Exception("用户Id不能为空");
+        }
+        Addressee theAddressee = addresseeMapper.selectByPrimaryKey(addressee.getId());
+        if (!theAddressee.getUserId().equals(addressee.getUserId())) {
+            throw new Exception("不能删除其他用户信息");
+        }
+        int i = addresseeMapper.deleteByPrimaryKey(addressee.getId());
         boolean r = (i == 1) ? true : false;
         if (logger.isDebugEnabled()) {
-            logger.debug("删除收货信息" + addresseeId + " " + r);
+            logger.debug("删除收货信息" + addressee + " " + r);
         }
         return r;
     }
 
     @Override
-    public PageBean<Addressee> listAddressee(Integer userId, int page, int rows) {
+    public PageBean<Addressee> listAddressee(Integer userId, int page, int rows) throws Exception {
         PageBean<Addressee> addresseePageBean = null;
         AddresseeExample example = new AddresseeExample();
         AddresseeExample.Criteria criteria = example.createCriteria();
