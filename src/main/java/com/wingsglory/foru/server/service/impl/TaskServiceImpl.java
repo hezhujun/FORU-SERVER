@@ -305,7 +305,7 @@ public class TaskServiceImpl implements TaskService {
         }
         theTask.setState(Task.TASK_STATE_DELETE);
         TaskContent content = taskContentMapper.selectByPrimaryKey(theTask.getContentId());
-        int i = addresseeMapper.deleteByPrimaryKey(content.getAddresseeId());
+        int i = taskMapper.deleteByPrimaryKey(theTask.getId());
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
@@ -313,7 +313,7 @@ public class TaskServiceImpl implements TaskService {
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
-        i = taskMapper.deleteByPrimaryKey(theTask.getId());
+        i = addresseeMapper.deleteByPrimaryKey(content.getAddresseeId());
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
