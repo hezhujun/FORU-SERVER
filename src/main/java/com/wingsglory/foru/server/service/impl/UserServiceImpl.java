@@ -24,7 +24,7 @@ import java.util.List;
  */
 @Service("UserService")
 public class UserServiceImpl implements UserService {
-    private static final String PHONE_REGEX = "0?(13|14|15|18)[0-9]{9}";
+    private static final String PHONE_REGEX = "(13\\d|14[57]|15[^4,\\D]|17[13678]|18\\d)\\d{8}|170[0589]\\d{7}";
     private static final String EMAIL_REGEX = "\\w[-\\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\\.)+[A-Za-z]{2,14}";
 
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -151,6 +151,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String verificationCodeToEmail(String email) throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("发送验证码到" + email));
+        }
+        if (!email.matches(EMAIL_REGEX)) {
+            throw new Exception("邮箱格式不正确");
+        }
         // TODO
         throw new RuntimeException("未实现");
 //        return null;
