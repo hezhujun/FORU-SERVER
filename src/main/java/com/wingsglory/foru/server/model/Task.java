@@ -26,6 +26,8 @@ public class Task {
 
     private Integer contentId;
 
+    private TaskContent content;
+
     private Integer evaluationToPublisher;
 
     private Integer evaluationToRecipient;
@@ -112,6 +114,14 @@ public class Task {
         this.recipient = recipient;
     }
 
+    public TaskContent getContent() {
+        return content;
+    }
+
+    public void setContent(TaskContent content) {
+        this.content = content;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -122,6 +132,7 @@ public class Task {
                 ", recipient=" + recipient +
                 ", state='" + state + '\'' +
                 ", contentId=" + contentId +
+                ", content=" + content +
                 ", evaluationToPublisher=" + evaluationToPublisher +
                 ", evaluationToRecipient=" + evaluationToRecipient +
                 ", gmtCreate=" + gmtCreate +

@@ -5,6 +5,14 @@ public class RelationKey {
 
     private Integer user2Id;
 
+    public RelationKey() {
+    }
+
+    public RelationKey(Integer user1Id, Integer user2Id) {
+        this.user1Id = user1Id;
+        this.user2Id = user2Id;
+    }
+
     public Integer getUser1Id() {
         return user1Id;
     }

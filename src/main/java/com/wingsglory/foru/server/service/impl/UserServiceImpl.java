@@ -162,7 +162,7 @@ public class UserServiceImpl implements UserService {
             logger.debug("更新用户信息: " + user.toString());
         }
         if (user.getId() == null) {
-            throw new Exception("修改的用户信息不全");
+            throw new Exception("用户id不能为空");
         }
         userMapper.updateByPrimaryKeySelective(user);
         User u = userMapper.selectByPrimaryKey(user.getId());
@@ -209,7 +209,7 @@ public class UserServiceImpl implements UserService {
             logger.debug("更新收货信息" + addressee.toString());
         }
         if (addressee.getId() == null) {
-            throw new Exception("修改的收货信息不全");
+            throw new Exception("收货信息id不能为空");
         }
         addresseeMapper.updateByPrimaryKeySelective(addressee);
         Addressee a = addresseeMapper.selectByPrimaryKey(addressee.getId());

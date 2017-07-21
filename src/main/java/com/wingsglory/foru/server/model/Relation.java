@@ -14,6 +14,13 @@ public class Relation extends RelationKey {
 
     private String relation;
 
+    public Relation() {
+    }
+
+    public Relation(Integer user1Id, Integer user2Id) {
+        super(user1Id, user2Id);
+    }
+
     public User getUser1() {
         return user1;
     }

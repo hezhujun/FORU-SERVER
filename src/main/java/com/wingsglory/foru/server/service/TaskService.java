@@ -9,19 +9,19 @@ import java.math.BigDecimal;
  * Created by hezhujun on 2017/7/18.
  */
 public interface TaskService {
-    Task publish(Task task);
+    Task publish(Task task) throws Exception;
 
-    Task updateTask(Task task);
+    Task updateTask(Task task) throws Exception;
 
-    void accept(Task task);
+    void accept(Task task) throws Exception;
 
-    void abandon(Task task);
+    void abandon(Task task) throws Exception;
 
-    void complete(Task task);
+    void complete(Task task) throws Exception;
 
-    void confirm(Task task);
+    void confirm(Task task) throws Exception;
 
-    void delete(Task task);
+    void delete(Task task) throws Exception;
 
     PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude, int page, int rows);
 
