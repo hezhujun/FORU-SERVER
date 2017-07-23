@@ -39,17 +39,17 @@ public class UserServiceImpl implements UserService {
     private AddresseeMapper addresseeMapper;
 
     @Override
-    public User login(String username, String passwrod) throws Exception {
+    public User login(String phone, String password) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("登录 %s %s", username, passwrod));
+            logger.debug(String.format("登录 %s %s", phone, password));
         }
-        String encoderPassword = MD5Coder.encode(passwrod);
+        String encoderPassword = MD5Coder.encode(password);
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();
-        criteria.andUsernameEqualTo(username)
+        criteria.andPhoneEqualTo(phone)
                 .andPasswordEqualTo(encoderPassword);
         List<User> userList = userMapper.selectByExample(userExample);
-        if (userList != null || userList.size() > 0) {
+        if (userList != null && userList.size() > 0) {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("登录返回" + userList.get(0)));
             }
@@ -183,6 +183,16 @@ public class UserServiceImpl implements UserService {
         if (logger.isDebugEnabled()) {
             logger.debug("保存收货信息: " + addressee.toString());
         }
+        if (addressee.getUserId() == null) {
+            throw new Exception("用户id不能为空");
+        }
+        AddresseeExample example = new AddresseeExample();
+        AddresseeExample.Criteria criteria = example.createCriteria();
+        criteria.andUserIdEqualTo(addressee.getUserId());
+        int total = addresseeMapper.countByExample(example);
+        if (total >= 10) {
+            throw new Exception("每个用户只能创建10个收货地址");
+        }
         if (addressee.getName() == null || "".equals(addressee.getName())) {
             throw new Exception("收货人不能为空");
         }
@@ -258,7 +268,7 @@ public class UserServiceImpl implements UserService {
         int totalRows = addresseeMapper.countByExample(example);
         if (totalRows == 0) {
             // 没有记录，直接返回
-            addresseePageBean = new PageBean<Addressee>(totalRows, rows, 0, null);
+            addresseePageBean = new PageBean<Addressee>(totalRows, rows, page, null);
         } else {
             example.setOrderByClause("id");
             example.setOffset((page - 1) * rows);

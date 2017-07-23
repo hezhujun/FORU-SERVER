@@ -111,7 +111,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.wingsglory.foru.server.model.Task">
+  <insert id="insert" parameterType="com.wingsglory.foru.server.model.Task" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
     insert into task (id, publisher_id, recipient_id, 
       state, content_id, evaluation_to_publisher, 
       evaluation_to_recipient, gmt_create)
@@ -119,7 +119,7 @@
       #{state,jdbcType=VARCHAR}, #{contentId,jdbcType=INTEGER}, #{evaluationToPublisher,jdbcType=INTEGER}, 
       #{evaluationToRecipient,jdbcType=INTEGER}, #{gmtCreate,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.Task">
+  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.Task" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
     insert into task
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">

@@ -1,5 +1,6 @@
 package com.wingsglory.foru.server.service.impl;
 
+import com.wingsglory.foru.server.common.AMapUtils;
 import com.wingsglory.foru.server.dao.*;
 import com.wingsglory.foru.server.model.*;
 import com.wingsglory.foru.server.service.TaskService;
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by hezhujun on 2017/7/20.
@@ -87,11 +88,13 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("保存收货信息失败");
         }
         // 再任务内容
+        taskContent.setAddresseeId(addressee.getId());
         i = taskContentMapper.insertSelective(taskContent);
         if (!(i == 1) || taskContent.getId() == null) {
             throw new Exception("保存任务内容失败");
         }
         // 最后保存任务
+        task.setContentId(taskContent.getId());
         i = taskMapper.insertSelective(task);
         if (!(i == 1) || task.getId() == null) {
             throw new Exception("保存任务失败");
@@ -181,11 +184,17 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("任务Id不能为空");
         }
         Task theTask = taskMapper.selectByPrimaryKey(task.getId());
+        if (theTask == null) {
+            throw new Exception("该任务已删除");
+        }
         if (!Task.TASK_STATE_NEW.equals(theTask.getState())) {
             throw new Exception("该任务所在状态不能接受");
         }
         if (task.getRecipientId() == null) {
             throw new Exception("接受人ID不能为空");
+        }
+        if (theTask.getPublisherId().equals(task.getRecipientId())) {
+            throw new Exception("自己不能接受自己的任务");
         }
         task.setState(Task.TASK_STATE_WAIT_FOR_COMPLETE);
         int i = taskMapper.updateByPrimaryKeySelective(task);
@@ -250,7 +259,7 @@ public class TaskServiceImpl implements TaskService {
         }
         Task theTask = taskMapper.selectByPrimaryKey(task.getId());
         if (!Task.TASK_STATE_WAIT_FOR_CONFIRM.equals(theTask.getState())) {
-            throw new Exception("该任务所在状态不能删除");
+            throw new Exception("该任务所在状态不能确认完成");
         }
         if (!theTask.getPublisherId().equals(task.getPublisherId())) {
             throw new Exception("你没有发布此任务，不能操作");
@@ -261,10 +270,10 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("操作失败");
         }
         // 更新双方的关系
-        RelationKey key = new RelationKey(task.getPublisherId(), task.getRecipientId());
+        RelationKey key = new RelationKey(theTask.getPublisherId(), theTask.getRecipientId());
         Relation relation = relationMapper.selectByPrimaryKey(key);
         if (relation == null) {
-            relation = new Relation(task.getPublisherId(), task.getRecipientId());
+            relation = new Relation(theTask.getPublisherId(), theTask.getRecipientId());
             relation.setInteractionCount(1);
             relation.setRelation(Relation.RELATION_NORMAL);
             relationMapper.insertSelective(relation);
@@ -274,10 +283,10 @@ public class TaskServiceImpl implements TaskService {
         }
         key = null;
         relation = null;
-        key = new RelationKey(task.getRecipientId(), task.getPublisherId());
+        key = new RelationKey(theTask.getRecipientId(), theTask.getPublisherId());
         relation = relationMapper.selectByPrimaryKey(key);
         if (relation == null) {
-            relation = new Relation(task.getRecipientId(), task.getPublisherId());
+            relation = new Relation(theTask.getRecipientId(), theTask.getPublisherId());
             relation.setInteractionCount(1);
             relation.setRelation(Relation.RELATION_NORMAL);
             relationMapper.insertSelective(relation);
@@ -286,7 +295,7 @@ public class TaskServiceImpl implements TaskService {
             relationMapper.updateByPrimaryKeySelective(relation);
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("用户" + task.getPublisherId() + "删除任务" + task.getId());
+            logger.debug("用户" + theTask.getPublisherId() + "确认任务" + theTask.getId() + "完成");
         }
     }
 
@@ -297,8 +306,12 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("任务Id不能为空");
         }
         Task theTask = taskMapper.selectByPrimaryKey(task.getId());
+        // 已删除
+        if (theTask == null) {
+            return;
+        }
         if (!Task.TASK_STATE_NEW.equals(theTask.getState())) {
-            throw new Exception("该任务所在状态不能确认完成");
+            throw new Exception("该任务所在状态不能删除");
         }
         if (!theTask.getPublisherId().equals(task.getPublisherId())) {
             throw new Exception("你没有发布此任务，不能操作");
@@ -318,13 +331,14 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("操作失败");
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("用户" + task.getPublisherId() + "完成任务" + task.getId());
+            logger.debug("用户" + task.getPublisherId() + "删除任务" + task.getId());
         }
     }
 
     @Transactional
     @Override
-    public PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude, int page, int rows)
+    public PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude,
+                                   int radius, int page, int rows)
             throws Exception {
         PageBean<Task> taskPageBean = null;
         TaskExample example = new TaskExample();
@@ -338,10 +352,21 @@ public class TaskServiceImpl implements TaskService {
             example.setOffset((page - 1) * rows);
             example.setRows(rows);
             List<Task> taskList = taskMapper.selectByExample(example);
-            for (Task task :
-                    taskList) {
-                task.setPublisher(userMapper.selectByPrimaryKey(task.getPublisherId()));
+            LatLng userPosition = new LatLng(latitude.doubleValue(), longitude.doubleValue());
+            Iterator<Task> iterator = taskList.iterator();
+            while (iterator.hasNext()) {
+                Task task = iterator.next();
+                TaskContent content = taskContentMapper.selectByPrimaryKey(task.getContentId());
+                LatLng taskPosition = new LatLng(content.getLatitude().doubleValue(),
+                        content.getLongitude().doubleValue());
+                // 去掉方圆radius之外的任务
+                int distance = (int) AMapUtils.calculateLineDistance(userPosition, taskPosition);
+                if (distance > radius) {
+                    iterator.remove();
+                    continue;
+                }
                 task.setContent(taskContentMapper.selectByPrimaryKey(task.getContentId()));
+                task.setPublisher(userMapper.selectByPrimaryKey(task.getPublisherId()));
                 task.getContent().setAddressee(
                         addresseeMapper.selectByPrimaryKey(task.getContent().getAddresseeId()));
             }
@@ -416,5 +441,57 @@ public class TaskServiceImpl implements TaskService {
             logger.debug("返回任务列表：" + taskPageBean);
         }
         return taskPageBean;
+    }
+
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    @Override
+    public void checkTaskTimeout() throws Exception {
+        Date now = new Date();
+        String toady = sdf.format(now);
+        // 数据库中期限都是23:00:00结尾
+        // 23时之后把检查任务是否过期
+        // 23时
+        Date time23 = sdf2.parse(toady + " 23:00:00");
+        // 判断现在是不是23时之后
+        if (now.getTime() >= time23.getTime()) {
+            new CheckTaskTimeout(time23).start();
+        }
+    }
+
+    class CheckTaskTimeout extends Thread {
+        private Date time23;
+
+        public CheckTaskTimeout(Date time23) {
+            this.time23 = time23;
+        }
+
+        @Override
+        public void run() {
+            TaskExample example = new TaskExample();
+            TaskExample.Criteria criteria = example.createCriteria();
+            List<String> states = new ArrayList<>();
+            states.add(Task.TASK_STATE_NEW);
+            states.add(Task.TASK_STATE_WAIT_FOR_COMPLETE);
+            criteria.andStateIn(states);
+            Date timeout = null;
+            List<Task> taskList = taskMapper.selectByExample(example);
+            for (Task task :
+                    taskList) {
+                TaskContent content = taskContentMapper.selectByPrimaryKey(task.getContentId());
+                timeout = content.getTimeout();
+                if ((timeout.getTime() - time23.getTime()) <= 0) {
+                    // 已过期
+                    if (Task.TASK_STATE_NEW.equals(task.getState())) {
+                        task.setState(Task.TASK_STATE_OVERDUE);
+                        taskMapper.updateByPrimaryKeySelective(task);
+                    } else if (Task.TASK_STATE_WAIT_FOR_COMPLETE.equals(task.getState())) {
+                        task.setState(Task.TASK_STATE_FAIL);
+                        taskMapper.updateByPrimaryKeySelective(task);
+                    }
+                }
+            }
+        }
     }
 }

@@ -112,7 +112,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.wingsglory.foru.server.model.TaskContent">
+  <insert id="insert" parameterType="com.wingsglory.foru.server.model.TaskContent"  keyColumn="id" keyProperty="id" useGeneratedKeys="true">
     insert into task_content (id, title, content, 
       target_position, latitude, longitude, 
       addressee_id, timeout, reward
@@ -122,7 +122,7 @@
       #{addresseeId,jdbcType=INTEGER}, #{timeout,jdbcType=TIMESTAMP}, #{reward,jdbcType=DECIMAL}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.TaskContent">
+  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.TaskContent"  keyColumn="id" keyProperty="id" useGeneratedKeys="true">
     insert into task_content
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">

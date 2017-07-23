@@ -120,7 +120,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.wingsglory.foru.server.model.User">
+  <insert id="insert" parameterType="com.wingsglory.foru.server.model.User" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
     insert into user (id, username, phone, 
       password, name, email, 
       protrait_url, rong_token, latitude, 
@@ -134,7 +134,7 @@
       #{doneCount,jdbcType=INTEGER}, #{failCount,jdbcType=INTEGER}, #{realName,jdbcType=VARCHAR}, 
       #{idCardNo,jdbcType=VARCHAR}, #{deposit,jdbcType=DECIMAL})
   </insert>
-  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.User">
+  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.User" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
     insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">

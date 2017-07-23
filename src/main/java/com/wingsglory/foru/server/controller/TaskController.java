@@ -29,12 +29,13 @@ public class TaskController {
     public Map listPublishedTask(@RequestParam Integer userId,
                                  @RequestParam BigDecimal latitude,
                                  @RequestParam BigDecimal longitude,
+                                 int radius,
                                  @RequestParam(name = "page", defaultValue = "1") int page,
                                  int rows) {
         Map<String, Object> map = new HashMap<>();
         Result result = new Result();
         try {
-            PageBean<Task> taskPageBean = taskService.listTask(userId, latitude, longitude, page, rows);
+            PageBean<Task> taskPageBean = taskService.listTask(userId, latitude, longitude, radius, page, rows);
             map.put("tasks", taskPageBean);
         } catch (Exception e) {
             e.printStackTrace();
@@ -192,7 +193,7 @@ public class TaskController {
         try {
             Task task = new Task();
             task.setId(taskId);
-            task.setRecipientId(userId);
+            task.setPublisherId(userId);
             taskService.delete(task);
         } catch (Exception e) {
             e.printStackTrace();
@@ -203,4 +204,18 @@ public class TaskController {
         return map;
     }
 
+    @RequestMapping(value = "/check_task_timeout", method = RequestMethod.GET)
+    public Map checkTaskTimeout() {
+        Map<String, Object> map = new HashMap<>();
+        Result result = new Result();
+        try {
+            taskService.checkTaskTimeout();
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setSuccess(false);
+            result.setErr(e.getMessage());
+        }
+        map.put("result", result);
+        return map;
+    }
 }

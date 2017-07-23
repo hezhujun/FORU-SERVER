@@ -45,7 +45,7 @@ public class UserController {
 
     @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
     public Map signIn(@RequestParam String phone, @RequestParam String password) {
-        Map<String, Object> map = new HashMap();
+        Map<String, Object> map = new HashMap<>();
         Result result = new Result();
         try {
             User user = userService.login(phone, password);

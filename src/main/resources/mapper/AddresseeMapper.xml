@@ -110,7 +110,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.wingsglory.foru.server.model.Addressee">
+  <insert id="insert" parameterType="com.wingsglory.foru.server.model.Addressee" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
     insert into addressee (id, name, phone, 
       address, address_detail, latitude, 
       longitude, user_id)
@@ -118,7 +118,7 @@
       #{address,jdbcType=VARCHAR}, #{addressDetail,jdbcType=VARCHAR}, #{latitude,jdbcType=DECIMAL}, 
       #{longitude,jdbcType=DECIMAL}, #{userId,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.Addressee">
+  <insert id="insertSelective" parameterType="com.wingsglory.foru.server.model.Addressee" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
     insert into addressee
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">

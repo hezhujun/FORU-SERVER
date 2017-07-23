@@ -59,7 +59,8 @@ public class AddresseeController {
             Addressee addressee = new Addressee();
             addressee.setUserId(userId);
             addressee.setId(addresseeId);
-            userService.removeAddressee(addressee);
+            boolean r = userService.removeAddressee(addressee);
+            result.setSuccess(r);
         } catch (Exception e) {
             e.printStackTrace();
             result.setSuccess(false);

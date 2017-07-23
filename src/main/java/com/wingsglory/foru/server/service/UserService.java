@@ -8,7 +8,7 @@ import com.wingsglory.foru.server.model.User;
  * Created by hezhujun on 2017/7/18.
  */
 public interface UserService {
-    User login(String username, String passwrod) throws Exception;
+    User login(String phone, String password) throws Exception;
 
     User register(User user, String verificationCode) throws Exception;
 

@@ -1,5 +1,7 @@
 package com.wingsglory.foru.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +47,7 @@ public class PageBean<T> {
         return totalRows;
     }
 
+    @JsonIgnore
     public int getTotalPages() {
         if ((totalRows % rows) == 0) {
             return totalRows / rows;
