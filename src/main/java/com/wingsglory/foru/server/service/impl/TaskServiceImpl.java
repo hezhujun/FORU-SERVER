@@ -7,6 +7,7 @@ import com.wingsglory.foru.server.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -446,26 +447,14 @@ public class TaskServiceImpl implements TaskService {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    // 设置每天23:00:00执行一次
     @Override
+    @Scheduled(cron = "0 0 23 * * ? *")
     public void checkTaskTimeout() throws Exception {
-        Date now = new Date();
-        String toady = sdf.format(now);
-        // 数据库中期限都是23:00:00结尾
-        // 23时之后把检查任务是否过期
-        // 23时
-        Date time23 = sdf2.parse(toady + " 23:00:00");
-        // 判断现在是不是23时之后
-        if (now.getTime() >= time23.getTime()) {
-            new CheckTaskTimeout(time23).start();
-        }
+        new CheckTaskTimeout().start();
     }
 
     class CheckTaskTimeout extends Thread {
-        private Date time23;
-
-        public CheckTaskTimeout(Date time23) {
-            this.time23 = time23;
-        }
 
         @Override
         public void run() {
@@ -476,12 +465,13 @@ public class TaskServiceImpl implements TaskService {
             states.add(Task.TASK_STATE_WAIT_FOR_COMPLETE);
             criteria.andStateIn(states);
             Date timeout = null;
+            long now = System.currentTimeMillis();
             List<Task> taskList = taskMapper.selectByExample(example);
             for (Task task :
                     taskList) {
                 TaskContent content = taskContentMapper.selectByPrimaryKey(task.getContentId());
                 timeout = content.getTimeout();
-                if ((timeout.getTime() - time23.getTime()) <= 0) {
+                if ((timeout.getTime() - now) <= 0) {
                     // 已过期
                     if (Task.TASK_STATE_NEW.equals(task.getState())) {
                         task.setState(Task.TASK_STATE_OVERDUE);
