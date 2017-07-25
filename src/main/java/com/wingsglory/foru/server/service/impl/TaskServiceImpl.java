@@ -100,8 +100,14 @@ public class TaskServiceImpl implements TaskService {
         if (!(i == 1) || task.getId() == null) {
             throw new Exception("保存任务失败");
         }
+        User publisher = userMapper.selectByPrimaryKey(task.getPublisherId());
+        publisher.setPublishCount(publisher.getPublishCount() + 1);
+        userMapper.updateByPrimaryKeySelective(publisher);
+        if (!(i == 1)) {
+            throw new Exception("增加用户的发布任务数失败");
+        }
         Task t = taskMapper.selectByPrimaryKey(task.getId());
-        t.setPublisher(userMapper.selectByPrimaryKey(t.getPublisherId()));
+        t.setPublisher(publisher);
         t.setContent(taskContentMapper.selectByPrimaryKey(t.getContentId()));
         t.getContent().setAddressee(addresseeMapper.selectByPrimaryKey(t.getContent().getAddresseeId()));
         if (logger.isDebugEnabled()) {
@@ -295,6 +301,12 @@ public class TaskServiceImpl implements TaskService {
             relation.setInteractionCount(relation.getInteractionCount() + 1);
             relationMapper.updateByPrimaryKeySelective(relation);
         }
+        User recipient = userMapper.selectByPrimaryKey(theTask.getRecipientId());
+        recipient.setDoneCount(recipient.getDoneCount() + 1);
+        i = userMapper.updateByPrimaryKeySelective(recipient);
+        if (i != 1) {
+            throw new Exception("增加用户完成任务数失败");
+        }
         if (logger.isDebugEnabled()) {
             logger.debug("用户" + theTask.getPublisherId() + "确认任务" + theTask.getId() + "完成");
         }
@@ -333,6 +345,12 @@ public class TaskServiceImpl implements TaskService {
         }
         if (logger.isDebugEnabled()) {
             logger.debug("用户" + task.getPublisherId() + "删除任务" + task.getId());
+        }
+        User publisher = userMapper.selectByPrimaryKey(theTask.getPublisherId());
+        publisher.setPublishCount(publisher.getPublishCount() - 1);
+        i = userMapper.updateByPrimaryKeySelective(publisher);
+        if (i != 1) {
+            throw new Exception("减少用户发布任务数失败");
         }
     }
 
@@ -451,6 +469,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Scheduled(cron = "0 0 23 * * ? *")
     public void checkTaskTimeout() throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("开始处理过期的任务");
+        }
         new CheckTaskTimeout().start();
     }
 
@@ -479,6 +500,9 @@ public class TaskServiceImpl implements TaskService {
                     } else if (Task.TASK_STATE_WAIT_FOR_COMPLETE.equals(task.getState())) {
                         task.setState(Task.TASK_STATE_FAIL);
                         taskMapper.updateByPrimaryKeySelective(task);
+                        User recipient = userMapper.selectByPrimaryKey(task.getRecipientId());
+                        recipient.setFailCount(recipient.getFailCount() + 1);
+                        userMapper.updateByPrimaryKeySelective(recipient);
                     }
                 }
             }
