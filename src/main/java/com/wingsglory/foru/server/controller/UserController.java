@@ -6,6 +6,7 @@ import com.wingsglory.foru.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,6 +68,25 @@ public class UserController {
         try {
             user = userService.updateUser(user);
             map.put("user", user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setSuccess(false);
+            result.setErr(e.getMessage());
+        }
+        map.put("result", result);
+        return map;
+    }
+
+    @RequestMapping(value = "/position", method = RequestMethod.POST)
+    public Map updateUserPosition(Integer userId, BigDecimal latitude, BigDecimal longitude) {
+        Map<String, Object> map = new HashMap();
+        Result result = new Result();
+        try {
+            User user = new User();
+            user.setId(userId);
+            user.setLatitude(latitude);
+            user.setLongitude(longitude);
+            userService.updateUser(user);
         } catch (Exception e) {
             e.printStackTrace();
             result.setSuccess(false);
