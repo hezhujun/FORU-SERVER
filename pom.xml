@@ -97,6 +97,11 @@
             <artifactId>json</artifactId>
             <version>20090211</version>
         </dependency>
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jpush-client</artifactId>
+            <version>3.3.0</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>foru</finalName>
