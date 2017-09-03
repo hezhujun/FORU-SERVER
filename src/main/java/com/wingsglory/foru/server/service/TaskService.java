@@ -23,7 +23,7 @@ public interface TaskService {
 
     void delete(Task task) throws Exception;
 
-    PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude, int radius, int page, int rows)
+    PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude, long radius, int page, int rows)
             throws Exception;
 
     PageBean<Task> listPublishTask(Integer userId, int page, int rows) throws Exception;
@@ -34,4 +34,6 @@ public interface TaskService {
      * 把过期的任务设置成对应的状态
      */
     void checkTaskTimeout() throws Exception;
+
+    Task findTaskById(Integer taskId) throws Exception;
 }

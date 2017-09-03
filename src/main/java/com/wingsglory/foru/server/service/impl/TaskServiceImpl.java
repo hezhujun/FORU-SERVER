@@ -1,8 +1,11 @@
 package com.wingsglory.foru.server.service.impl;
 
+import com.wingsglory.foru.server.Const;
 import com.wingsglory.foru.server.common.AMapUtils;
+import com.wingsglory.foru.server.common.JPushUtil;
 import com.wingsglory.foru.server.dao.*;
 import com.wingsglory.foru.server.model.*;
+import com.wingsglory.foru.server.service.TaskPool;
 import com.wingsglory.foru.server.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,10 +113,50 @@ public class TaskServiceImpl implements TaskService {
         t.setPublisher(publisher);
         t.setContent(taskContentMapper.selectByPrimaryKey(t.getContentId()));
         t.getContent().setAddressee(addresseeMapper.selectByPrimaryKey(t.getContent().getAddresseeId()));
+        // 推送新用户给用户
+        PushTaskTask pushTaskTask = new PushTaskTask(t);
+        TaskPool.submitTask(pushTaskTask);
         if (logger.isDebugEnabled()) {
             logger.debug("保存任务信息成功：" + t.toString());
         }
         return t;
+    }
+
+    class PushTaskTask implements Runnable {
+
+        private Task task;
+
+        public PushTaskTask(Task task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() {
+            List<String> userIdList = new ArrayList<>();
+            TaskContent taskContent = task.getContent();
+            LatLng target = new LatLng(taskContent.getLatitude().doubleValue(), taskContent.getLongitude().doubleValue());
+            List<User> userList = userMapper.selectByExample(null);
+            for (User user :
+                    userList) {
+                // 用户位置没有记录
+                if (user.getLatitude() == null || user.getLongitude() == null) {
+                    continue;
+                }
+                // 不需要推送到发布人
+//            if (user.getId().equals(task.getPublisherId())) {
+//                continue;
+//            }
+                LatLng userPosition = new LatLng(user.getLatitude().doubleValue(), user.getLongitude().doubleValue());
+                long distance = (long) AMapUtils.calculateLineDistance(userPosition, target);
+                // 距离低于5km就推送
+                if (distance <= 5000) {
+                    userIdList.add(String.valueOf(user.getId()));
+                }
+            }
+            String message = String.format("{\"taskId\":%d}", task.getId());
+            // 使用极光推送接口推送
+            JPushUtil.sendMessage(userIdList, Const.TASK_NEW, message, null);
+        }
     }
 
     @Transactional
@@ -330,16 +373,7 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("你没有发布此任务，不能操作");
         }
         theTask.setState(Task.TASK_STATE_DELETE);
-        TaskContent content = taskContentMapper.selectByPrimaryKey(theTask.getContentId());
-        int i = taskMapper.deleteByPrimaryKey(theTask.getId());
-        if (!(i == 1)) {
-            throw new Exception("操作失败");
-        }
-        i = taskContentMapper.deleteByPrimaryKey(content.getId());
-        if (!(i == 1)) {
-            throw new Exception("操作失败");
-        }
-        i = addresseeMapper.deleteByPrimaryKey(content.getAddresseeId());
+        int i = taskMapper.updateByPrimaryKeySelective(theTask);
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
@@ -357,7 +391,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @Override
     public PageBean<Task> listTask(Integer userId, BigDecimal latitude, BigDecimal longitude,
-                                   int radius, int page, int rows)
+                                   long radius, int page, int rows)
             throws Exception {
         PageBean<Task> taskPageBean = null;
         TaskExample example = new TaskExample();
@@ -379,7 +413,7 @@ public class TaskServiceImpl implements TaskService {
                 LatLng taskPosition = new LatLng(content.getLatitude().doubleValue(),
                         content.getLongitude().doubleValue());
                 // 去掉方圆radius之外的任务
-                int distance = (int) AMapUtils.calculateLineDistance(userPosition, taskPosition);
+                long distance = (long) AMapUtils.calculateLineDistance(userPosition, taskPosition);
                 if (distance > radius) {
                     iterator.remove();
                     continue;
@@ -404,6 +438,7 @@ public class TaskServiceImpl implements TaskService {
         TaskExample example = new TaskExample();
         TaskExample.Criteria criteria = example.createCriteria();
         criteria.andPublisherIdEqualTo(userId);
+        criteria.andStateNotEqualTo(Task.TASK_STATE_DELETE);
         int totalRows = taskMapper.countByExample(example);
         if (totalRows == 0) {
             taskPageBean = new PageBean<Task>(0, rows, page);
@@ -467,7 +502,7 @@ public class TaskServiceImpl implements TaskService {
 
     // 设置每天23:00:00执行一次
     @Override
-    @Scheduled(cron = "0 0 23 * * ? *")
+    @Scheduled(cron = "0 23 * * * *")
     public void checkTaskTimeout() throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("开始处理过期的任务");
@@ -507,5 +542,19 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
+    }
+
+    @Override
+    public Task findTaskById(Integer taskId) throws Exception {
+        Task task = taskMapper.selectByPrimaryKey(taskId);
+        task.setPublisher(userMapper.selectByPrimaryKey(task.getPublisherId()));
+        Integer recipientId = task.getRecipientId();
+        if (recipientId != null) {
+            task.setRecipient(userMapper.selectByPrimaryKey(recipientId));
+        }
+        task.setContent(taskContentMapper.selectByPrimaryKey(task.getContentId()));
+        Integer addresseeId = task.getContent().getAddresseeId();
+        task.getContent().setAddressee(addresseeMapper.selectByPrimaryKey(addresseeId));
+        return task;
     }
 }

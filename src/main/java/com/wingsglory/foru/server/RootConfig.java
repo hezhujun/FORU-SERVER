@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ComponentScan(basePackages = "com.wingsglory.foru.server",
         excludeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, value = EnableWebMvc.class)})
 @ImportResource(locations = {"classpath:spring-mybatis.xml"})
-@EnableScheduling
+//@EnableScheduling
 public class RootConfig {
 
 }

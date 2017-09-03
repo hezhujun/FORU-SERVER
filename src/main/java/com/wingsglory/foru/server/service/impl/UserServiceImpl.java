@@ -1,13 +1,13 @@
 package com.wingsglory.foru.server.service.impl;
 
+import com.wingsglory.foru.server.Const;
+import com.wingsglory.foru.server.common.JPushUtil;
 import com.wingsglory.foru.server.common.MD5Coder;
 import com.wingsglory.foru.server.common.SmsNumSendUtil;
 import com.wingsglory.foru.server.common.VerificationCodeGenerator;
-import com.wingsglory.foru.server.dao.AddresseeMapper;
-import com.wingsglory.foru.server.dao.UserMapper;
-import com.wingsglory.foru.server.dao.VerificationCodeEmailMapper;
-import com.wingsglory.foru.server.dao.VerificationCodePhoneMapper;
+import com.wingsglory.foru.server.dao.*;
 import com.wingsglory.foru.server.model.*;
+import com.wingsglory.foru.server.service.TaskPool;
 import com.wingsglory.foru.server.service.UserService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -37,6 +38,8 @@ public class UserServiceImpl implements UserService {
     private VerificationCodeEmailMapper verificationCodeEmailMapper;
     @Autowired
     private AddresseeMapper addresseeMapper;
+    @Autowired
+    private TaskMapper taskMapper;
 
     @Override
     public User login(String phone, String password) throws Exception {
@@ -170,12 +173,40 @@ public class UserServiceImpl implements UserService {
         if (user.getId() == null) {
             throw new Exception("用户id不能为空");
         }
+        if (user.getLatitude() != null && user.getLongitude() != null) {
+            PushUserPositionTask task = new PushUserPositionTask(user.getId());
+            TaskPool.submitTask(task);
+        }
         userMapper.updateByPrimaryKeySelective(user);
         User u = userMapper.selectByPrimaryKey(user.getId());
         if (logger.isDebugEnabled()) {
             logger.debug("更新用户后返回: " + u.toString());
         }
         return u;
+    }
+
+    class PushUserPositionTask implements Runnable {
+
+        private Integer userId;
+
+        public PushUserPositionTask(Integer userId) {
+            this.userId = userId;
+        }
+
+        @Override
+        public void run() {
+            TaskExample taskExample = new TaskExample();
+            taskExample.createCriteria().andRecipientIdEqualTo(userId)
+                    .andStateEqualTo(Task.TASK_STATE_WAIT_FOR_COMPLETE);
+            List<Task> taskList = taskMapper.selectByExample(taskExample);
+            Integer publisherId = null;
+            for (Task task :
+                    taskList) {
+                String message = String.format("{\"taskId\":%d}", task.getId());
+                JPushUtil.sendMessageToUser(task.getPublisherId(),
+                        Const.TASK_DOING, message, null);
+            }
+        }
     }
 
     @Override

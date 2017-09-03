@@ -218,4 +218,32 @@ public class TaskController {
         map.put("result", result);
         return map;
     }
+
+    @RequestMapping(value = "/get", method = RequestMethod.POST)
+    public Map<String, Object> getTask(@RequestParam(name = "userId") Integer userId,
+                                       @RequestParam(name = "taskId") Integer taskId){
+        Map<String, Object> map = new HashMap<>();
+        Result result = new Result();
+        try {
+            Task task = taskService.findTaskById(taskId);
+            if (Task.TASK_STATE_NEW.equals(task.getState())) {
+                map.put("task", task);
+            } else if (Task.TASK_STATE_DELETE.equals(task.getState()) && userId.equals(task.getPublisherId())){
+                result.setErr("该任务已删除");
+                result.setSuccess(false);
+            } else {
+                if (userId.equals(task.getPublisherId()) || userId.equals(task.getRecipientId())) {
+                    map.put("task", task);
+                } else {
+                    result.setErr("没有权限获取该任务");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setErr(e.getMessage());
+            result.setSuccess(false);
+        }
+        map.put("result", result);
+        return map;
+    }
 }
