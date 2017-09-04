@@ -38,6 +38,14 @@ public class JPushUtil {
     }
 
     public static void sendMessage(List<String> userIdList, String title, String message, Map<String, String> extra) {
+        sendMessage(Audience.alias(userIdList), title, message, extra);
+    }
+
+    public static void sendMessageToAll(String title, String message, Map<String, String> extra) {
+        sendMessage(Audience.all(), title, message, extra);
+    }
+
+    public static void sendMessage(Audience audience, String title, String message, Map<String, String> extra) {
         Message.Builder builder = new Message.Builder()
                 .setMsgContent(message)
                 .setContentType("json")
@@ -52,7 +60,7 @@ public class JPushUtil {
         JPushClient client = new JPushClient(Const.MASTER_SECRET, Const.APP_KEY);
         PushPayload pushPayload = new PushPayload.Builder()
                 .setPlatform(Platform.all())
-                .setAudience(Audience.alias(userIdList))
+                .setAudience(audience)
                 .setMessage(builder.build())
                 .build();
         try {

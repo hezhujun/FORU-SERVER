@@ -22,7 +22,7 @@ public class Task {
 
     private User recipient;
 
-    private String state = TASK_STATE_NEW;
+    private String state;
 
     private Integer contentId;
 

@@ -10,7 +10,7 @@ public class Relation extends RelationKey {
 
     private User user2;
 
-    private Integer interactionCount = 0;
+    private Integer interactionCount;
 
     private String relation;
 

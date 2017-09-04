@@ -104,6 +104,9 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("保存任务失败");
         }
         User publisher = userMapper.selectByPrimaryKey(task.getPublisherId());
+        if (publisher.getPublishCount() == null) {
+            publisher.setPublishCount(0);
+        }
         publisher.setPublishCount(publisher.getPublishCount() + 1);
         userMapper.updateByPrimaryKeySelective(publisher);
         if (!(i == 1)) {
@@ -114,19 +117,19 @@ public class TaskServiceImpl implements TaskService {
         t.setContent(taskContentMapper.selectByPrimaryKey(t.getContentId()));
         t.getContent().setAddressee(addresseeMapper.selectByPrimaryKey(t.getContent().getAddresseeId()));
         // 推送新用户给用户
-        PushTaskTask pushTaskTask = new PushTaskTask(t);
-        TaskPool.submitTask(pushTaskTask);
+        PushTaskNewTask pushTaskNewTask = new PushTaskNewTask(t);
+        TaskPool.submitTask(pushTaskNewTask);
         if (logger.isDebugEnabled()) {
             logger.debug("保存任务信息成功：" + t.toString());
         }
         return t;
     }
 
-    class PushTaskTask implements Runnable {
+    class PushTaskNewTask implements Runnable {
 
         private Task task;
 
-        public PushTaskTask(Task task) {
+        public PushTaskNewTask(Task task) {
             this.task = task;
         }
 
@@ -251,8 +254,24 @@ public class TaskServiceImpl implements TaskService {
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
+        TaskPool.submitTask(new PushTaskAcceptTask(theTask.getId()));
         if (logger.isDebugEnabled()) {
             logger.debug("用户" + task.getRecipientId() + "接受任务" + task.getId());
+        }
+    }
+
+    class PushTaskAcceptTask implements Runnable {
+
+        private int taskId;
+
+        public PushTaskAcceptTask(int taskId) {
+            this.taskId = taskId;
+        }
+
+        @Override
+        public void run() {
+            String message = String.format("{\"taskId\":%d}", taskId);
+            JPushUtil.sendMessageToAll(Const.TASK_ACCEPT, message, null);
         }
     }
 
@@ -274,8 +293,24 @@ public class TaskServiceImpl implements TaskService {
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
+        TaskPool.submitTask(new PushTaskAbandonTask(theTask.getId()));
         if (logger.isDebugEnabled()) {
             logger.debug("用户" + task.getRecipientId() + "放弃任务" + task.getId());
+        }
+    }
+
+    class PushTaskAbandonTask implements Runnable {
+
+        private int taskId;
+
+        public PushTaskAbandonTask(int taskId) {
+            this.taskId = taskId;
+        }
+
+        @Override
+        public void run() {
+            String message = String.format("{\"taskId\":%d}", taskId);
+            JPushUtil.sendMessageToAll(Const.TASK_ABANDON, message, null);
         }
     }
 
@@ -296,8 +331,25 @@ public class TaskServiceImpl implements TaskService {
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
+        TaskPool.submitTask(new PushTaskCompleteTask(task.getPublisherId(), task.getId()));
         if (logger.isDebugEnabled()) {
             logger.debug("用户" + task.getRecipientId() + "完成任务" + task.getId());
+        }
+    }
+
+    class PushTaskCompleteTask implements Runnable {
+        private int userId;
+        private int taskId;
+
+        public PushTaskCompleteTask(int userId, int taskId) {
+            this.userId = userId;
+            this.taskId = taskId;
+        }
+
+        @Override
+        public void run() {
+            String message = String.format("{\"taskId\":%d}", taskId);
+            JPushUtil.sendMessageToUser(userId, Const.TASK_COMPLETE, message, null);
         }
     }
 
@@ -319,6 +371,7 @@ public class TaskServiceImpl implements TaskService {
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
+        TaskPool.submitTask(new PushTaskConfirmTask(task.getPublisherId(), task.getId()));
         // 更新双方的关系
         RelationKey key = new RelationKey(theTask.getPublisherId(), theTask.getRecipientId());
         Relation relation = relationMapper.selectByPrimaryKey(key);
@@ -345,6 +398,9 @@ public class TaskServiceImpl implements TaskService {
             relationMapper.updateByPrimaryKeySelective(relation);
         }
         User recipient = userMapper.selectByPrimaryKey(theTask.getRecipientId());
+        if (recipient.getDoneCount() == null) {
+            recipient.setDoneCount(0);
+        }
         recipient.setDoneCount(recipient.getDoneCount() + 1);
         i = userMapper.updateByPrimaryKeySelective(recipient);
         if (i != 1) {
@@ -352,6 +408,23 @@ public class TaskServiceImpl implements TaskService {
         }
         if (logger.isDebugEnabled()) {
             logger.debug("用户" + theTask.getPublisherId() + "确认任务" + theTask.getId() + "完成");
+        }
+    }
+
+    class PushTaskConfirmTask implements Runnable {
+
+        private int userId;
+        private int taskId;
+
+        public PushTaskConfirmTask(int userId, int taskId) {
+            this.userId = userId;
+            this.taskId = taskId;
+        }
+
+        @Override
+        public void run() {
+            String message = String.format("{\"taskId\":%d}", taskId);
+            JPushUtil.sendMessageToUser(userId, Const.TASK_FINISH, message, null);
         }
     }
 
@@ -377,6 +450,7 @@ public class TaskServiceImpl implements TaskService {
         if (!(i == 1)) {
             throw new Exception("操作失败");
         }
+        TaskPool.submitTask(new PushTaskDeleteTask(theTask.getId()));
         if (logger.isDebugEnabled()) {
             logger.debug("用户" + task.getPublisherId() + "删除任务" + task.getId());
         }
@@ -385,6 +459,21 @@ public class TaskServiceImpl implements TaskService {
         i = userMapper.updateByPrimaryKeySelective(publisher);
         if (i != 1) {
             throw new Exception("减少用户发布任务数失败");
+        }
+    }
+
+    class PushTaskDeleteTask implements Runnable {
+
+        private int taskId;
+
+        public PushTaskDeleteTask(int taskId) {
+            this.taskId = taskId;
+        }
+
+        @Override
+        public void run() {
+            String message = String.format("{\"taskId\":%d}", taskId);
+            JPushUtil.sendMessageToAll(Const.TASK_DELETE, message, null);
         }
     }
 
@@ -536,6 +625,9 @@ public class TaskServiceImpl implements TaskService {
                         task.setState(Task.TASK_STATE_FAIL);
                         taskMapper.updateByPrimaryKeySelective(task);
                         User recipient = userMapper.selectByPrimaryKey(task.getRecipientId());
+                        if (recipient.getFailCount() == null) {
+                            recipient.setFailCount(0);
+                        }
                         recipient.setFailCount(recipient.getFailCount() + 1);
                         userMapper.updateByPrimaryKeySelective(recipient);
                     }
